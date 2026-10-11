@@ -54,7 +54,7 @@ Test parked, with ignition on and adequate battery charge:
 
 ## Validation and next scope
 
-`npm test` covers PID decoding, support bitmaps, fragmented replies, serial execution, timeout isolation and disconnect cancellation. CI checks types, tests and Android JS export, then builds an installable release-mode test APK signed with the generated debug key. Download `retro-obd-test-apk` from the successful Actions run. This is not a store signing key. Physical adapter tests remain required.
+`npm test` covers PID decoding, support bitmaps, fragmented replies, serial execution, timeout isolation and disconnect cancellation. CI checks types, tests and Android JS export, then builds an installable arm64 release-mode test APK signed with the generated debug key. Download `retro-obd-test-apk` from the successful Actions run. This is not a store signing key. Physical adapter tests remain required.
 
 Native dependency patches in `patches/` modernize Gradle namespaces, React Android dependencies, Bluetooth receiver registration and React instance event checks. `npm ci` applies them through `patch-package`. Local native compilation was blocked by unavailable Gradle download network access; treat the CI Android job as the native build gate.
 
