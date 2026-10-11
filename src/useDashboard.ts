@@ -18,12 +18,15 @@ export function useDashboard() {
     try { await old.session?.close(); } catch {}
   };
   const disconnect = async () => {
-    generation.current++; await cleanup(); setActive(false); setReadings({}); setStatus('Rozłączono');
+    const token = ++generation.current; await cleanup();
+    if (token !== generation.current) return;
+    setActive(false); setReadings({}); setStatus('Rozłączono');
   };
   const connect = async (config: Connection) => {
     const token = ++generation.current;
-    await cleanup(); setReadings({}); setActive(true);
+    await cleanup();
     if (token !== generation.current) return;
+    setReadings({}); setActive(true);
     const attempt = async (retry: number) => {
       if (token !== generation.current) return;
       setStatus(retry ? `Ponawiam połączenie (${retry}/3)` : 'Łączenie…');
@@ -58,7 +61,7 @@ export function useDashboard() {
   const demo = async () => {
     const token = ++generation.current;
     await cleanup(); if (token !== generation.current) return;
-    setActive(true); setStatus('DEMO · dane symulowane');
+    setReadings({}); setActive(true); setStatus('DEMO · dane symulowane');
     const start = Date.now();
     current.current.demo = setInterval(() => {
       const t = (Date.now() - start) / 1000, at = Date.now();

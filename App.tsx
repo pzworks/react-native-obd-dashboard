@@ -37,7 +37,7 @@ export default function App() {
     setDevices([]); setError(''); scanStop.current?.();
     try {
       if (kind === 'classic') setDevices((await pairedDevices()).map(device => ({ id: device.address, name: device.name })));
-      else scanStop.current = await scanBle((id, name) => setDevices(previous => previous.some(device => device.id === id) ? previous : [...previous, { id, name }]));
+      else scanStop.current = await scanBle((id, name) => setDevices(previous => previous.some(device => device.id === id) ? previous : [...previous, { id, name }]), error => setError(error.message));
     } catch (err) { setError((err as Error).message); }
   };
   const button = (label: string, action: () => void, selected = false) => <TouchableOpacity accessibilityRole="button" style={[styles.button, selected && styles.selected]} onPress={action}><Text style={styles.amber}>{label}</Text></TouchableOpacity>;

@@ -22,14 +22,14 @@ export async function pairedDevices() {
   const { default: classic } = await import('react-native-bluetooth-classic');
   return classic.getBondedDevices();
 }
-export async function scanBle(onDevice: (id: string, name: string) => void): Promise<() => void> {
+export async function scanBle(onDevice: (id: string, name: string) => void, onError: (error: Error) => void): Promise<() => void> {
   await permissions('ble');
   const { BleManager } = await import('react-native-ble-plx');
   const manager = new BleManager();
   try { await poweredOn(manager); } catch (error) { manager.destroy(); throw error; }
   const timer = setTimeout(() => { manager.stopDeviceScan(); manager.destroy(); }, 10000);
   manager.startDeviceScan(null, null, (error, device) => {
-    if (error) { clearTimeout(timer); manager.stopDeviceScan(); manager.destroy(); return; }
+    if (error) { clearTimeout(timer); manager.stopDeviceScan(); manager.destroy(); onError(new Error(error.message)); return; }
     if (device) onDevice(device.id, device.name ?? device.localName ?? 'BLE adapter');
   });
   return () => { clearTimeout(timer); manager.stopDeviceScan(); manager.destroy(); };
