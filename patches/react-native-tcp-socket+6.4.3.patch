@@ -1,0 +1,32 @@
+diff --git a/node_modules/react-native-tcp-socket/android/build.gradle b/node_modules/react-native-tcp-socket/android/build.gradle
+index 7473503..6f580ee 100644
+--- a/node_modules/react-native-tcp-socket/android/build.gradle
++++ b/node_modules/react-native-tcp-socket/android/build.gradle
+@@ -5,6 +5,7 @@ def safeExtGet(prop, fallback) {
+ }
+ 
+ android {
++    namespace "com.asterinet.react.tcpsocket"
+     compileSdkVersion safeExtGet('compileSdkVersion', 29)
+ 
+     defaultConfig {
+@@ -15,7 +16,7 @@ android {
+ 
+ dependencies {
+     //noinspection GradleDynamicVersion
+-    implementation 'com.facebook.react:react-native:+'  // From node_modules
++    implementation 'com.facebook.react:react-android'  // From node_modules
+     // Bouncy Castle dependencies
+     implementation 'org.bouncycastle:bcprov-jdk15to18:1.78.1'
+     implementation 'org.bouncycastle:bcpkix-jdk15to18:1.78.1'
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/AndroidManifest.xml b/node_modules/react-native-tcp-socket/android/src/main/AndroidManifest.xml
+index f5ce4b2..8bb5479 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-tcp-socket/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,4 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.asterinet.react.tcpsocket">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+ </manifest>

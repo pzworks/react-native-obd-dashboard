@@ -1,0 +1,105 @@
+diff --git a/node_modules/react-native-bluetooth-classic/android/build.gradle b/node_modules/react-native-bluetooth-classic/android/build.gradle
+index 0daf907..9f73a97 100644
+--- a/node_modules/react-native-bluetooth-classic/android/build.gradle
++++ b/node_modules/react-native-bluetooth-classic/android/build.gradle
+@@ -1,14 +1,3 @@
+-buildscript {
+-    repositories {
+-        google()
+-        mavenCentral()
+-    }
+-
+-    dependencies {
+-        classpath 'com.android.tools.build:gradle:3.4.3'
+-    }
+-}
+-
+ apply plugin: 'com.android.library'
+ 
+ def getExtOrDefault(name, fallback) {
+@@ -56,7 +45,7 @@ repositories {
+ }
+ 
+ dependencies {
+-    implementation 'com.facebook.react:react-native:0.71.0-rc.0'
++    implementation 'com.facebook.react:react-android'
+ 
+     testImplementation 'junit:junit:4.13.2'
+     testImplementation 'org.mockito:mockito-core:4.0.0'
+diff --git a/node_modules/react-native-bluetooth-classic/android/src/main/java/kjd/reactnative/bluetooth/RNBluetoothClassicModule.java b/node_modules/react-native-bluetooth-classic/android/src/main/java/kjd/reactnative/bluetooth/RNBluetoothClassicModule.java
+index f994a0a..142c4f9 100644
+--- a/node_modules/react-native-bluetooth-classic/android/src/main/java/kjd/reactnative/bluetooth/RNBluetoothClassicModule.java
++++ b/node_modules/react-native-bluetooth-classic/android/src/main/java/kjd/reactnative/bluetooth/RNBluetoothClassicModule.java
+@@ -541,7 +541,7 @@ public class RNBluetoothClassicModule
+                 }
+             });
+ 
+-            getReactApplicationContext().registerReceiver(mDiscoveryReceiver,
++            registerBroadcastReceiver(mDiscoveryReceiver,
+                     DiscoveryReceiver.intentFilter());
+ 
+             mAdapter.startDiscovery();
+@@ -621,7 +621,7 @@ public class RNBluetoothClassicModule
+                             promise.reject(new DevicePairingException(null, cause));
+                         }
+                     });
+-            getReactApplicationContext().registerReceiver(pr, PairingReceiver.intentFilter());
++            registerBroadcastReceiver(pr, PairingReceiver.intentFilter());
+             try {
+                 BluetoothDevice device = mAdapter.getRemoteDevice(address);
+                 Method m = device.getClass().getMethod("createBond", (Class[]) null);
+@@ -685,7 +685,7 @@ public class RNBluetoothClassicModule
+                             }
+                         });
+ 
+-                getReactApplicationContext().registerReceiver(pr, intentFilter);
++                registerBroadcastReceiver(pr, intentFilter);
+             } catch (IllegalAccessException e) {
+                 promise.reject(Exceptions.BONDING_UNAVAILABLE_API.name(),
+                         Exceptions.BONDING_UNAVAILABLE_API.message());
+@@ -1111,17 +1111,23 @@ public class RNBluetoothClassicModule
+      * disconnections</li>
+      * </ul>
+      */
++    private void registerBroadcastReceiver(android.content.BroadcastReceiver receiver, android.content.IntentFilter filter) {
++        if (android.os.Build.VERSION.SDK_INT >= 33) {
++            getReactApplicationContext().registerReceiver(receiver, filter, android.content.Context.RECEIVER_EXPORTED);
++        } else {
++            getReactApplicationContext().registerReceiver(receiver, filter);
++        }
++    }
++
+     private void registerBluetoothReceivers() {
+         if (mStateChangeReceiver == null) {
+             mStateChangeReceiver = new StateChangeReceiver(this);
+-            getReactApplicationContext()
+-                    .registerReceiver(mStateChangeReceiver, StateChangeReceiver.intentFilter());
++            registerBroadcastReceiver(mStateChangeReceiver, StateChangeReceiver.intentFilter());
+         }
+ 
+         if (mActionACLReceiver == null) {
+             mActionACLReceiver = new ActionACLReceiver(this);
+-            getReactApplicationContext()
+-                    .registerReceiver(mActionACLReceiver, ActionACLReceiver.intentFilter());
++            registerBroadcastReceiver(mActionACLReceiver, ActionACLReceiver.intentFilter());
+         }
+     }
+ 
+@@ -1398,7 +1404,7 @@ public class RNBluetoothClassicModule
+     private void sendEvent(EventType event, WritableMap body) {
+         ReactContext context = getReactApplicationContext();
+ 
+-        if (context.hasActiveCatalystInstance()) {
++        if (context.hasActiveReactInstance()) {
+             context
+                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                     .emit(event.name(), body);
+@@ -1426,7 +1432,7 @@ public class RNBluetoothClassicModule
+     synchronized private void sendEvent(EventType event, NativeDevice device, WritableMap body) {
+         ReactContext context = getReactApplicationContext();
+ 
+-        if (context.hasActiveCatalystInstance()) {
++        if (context.hasActiveReactInstance()) {
+             context
+                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                     .emit(String.format("%s@%s", event.name(), device.getAddress()), body);
